@@ -3,11 +3,9 @@ package com.ventas.ventas.controller;
 import com.ventas.ventas.model.Cliente;
 import com.ventas.ventas.service.ClienteService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -28,5 +26,27 @@ public class ClienteController {
         return clienteService.findById(idCliente)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @PostMapping
+    public ResponseEntity<Cliente> create(@RequestBody Cliente cliente){
+        return new ResponseEntity<Cliente>(clienteService.create(cliente), HttpStatus.CREATED);
+    }
+
+    @PutMapping
+    public ResponseEntity<Cliente> update(@RequestBody Cliente cliente){
+        return clienteService.findById(cliente.getIdCliente())
+                .map( c -> ResponseEntity.ok(clienteService.update(cliente)))
+                .orElseGet( () -> ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Cliente> delete(@PathVariable("id") Integer idCliente){
+        return clienteService.findById(idCliente)
+                .map(c -> {
+                     clienteService.delete(idCliente);
+                     return ResponseEntity.ok(c);
+                })
+                .orElseGet( () -> ResponseEntity.notFound().build());
     }
 }
